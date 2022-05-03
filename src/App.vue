@@ -67,13 +67,13 @@
                     <th scope="row"></th>
                     <td scope="col">
                       <input
-                        :value="temp.contact_info.first_name"
+                        v-model="temp.contact_info.first_name"
                         class="w60 text-center"
                       />
                     </td>
                     <td scope="col">
                       <input
-                        :value="temp.contact_info.last_name"
+                        v-model="temp.contact_info.last_name"
                         class="w60 text-center"
                       />
                     </td>
@@ -89,7 +89,7 @@
                         +
                       </button>
                       <input
-                        :value="temp.date"
+                        v-model="temp.date"
                         class="w60 text-center"
                         readonly
                       />
@@ -104,20 +104,20 @@
                         +
                       </button>
                       <input
-                        :value="temp.start_time"
+                        v-model="temp.start_time"
                         class="w60 text-center"
                         readonly
                       />
                     </td>
                     <td scope="col">
                       <input
-                        :value="temp.contact_info.phone_number"
+                        v-model="temp.contact_info.phone_number"
                         class="w60 text-center"
                       />
                     </td>
                     <td scope="col">
                       <input
-                        :value="temp.contact_info.email"
+                        v-model="temp.contact_info.email"
                         class="w60 text-center"
                       />
                     </td>
@@ -403,13 +403,20 @@ export default {
     },
     startEdit(item) {
       this.temp = item;
-      console.log(this.temp);
       this.showCalendar();
     },
-    confirmEdit(id) {
+    confirmEdit() {
+      for (var key in this.temp) {
+        console.log(this.temp[key]);
+        if (this.temp[key] == null || this.temp[key] == "")
+          return Swal.fire({
+            icon: "error",
+            title: "Please fill in all fields.",
+          });
+      }
       Swal.fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this",
+        title: "Confirm edit?",
+        // text: "You won't be able to revert this",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -420,7 +427,7 @@ export default {
           Swal.fire({
             didOpen: async () => {
               Swal.showLoading();
-              const op = await this._update(id);
+              const op = await this._update(this.temp.id);
               if (!op) return Swal.fire("Operation failed.", "", "error");
               Swal.fire("Successfully edited.", "", "success");
             },
