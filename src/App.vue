@@ -2,7 +2,58 @@
 // See README's bottom section for more info.
 
 <template>
-  <FullCalendar :options="calendarOptions" />
+  <div class="section">
+    <!-- Button trigger modal -->
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-bs-toggle="modal"
+      data-bs-target="#exampleModal"
+      @click="showCalendar"
+    >
+      Launch demo modal
+    </button>
+
+    <!-- Modal -->
+    <div
+      class="modal fade p-5"
+      id="exampleModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div
+        class="p-5 m-auto modal-dialog modal-fullscreen modal-dialog-centered"
+        style="max-width: 90% !important; max-height: 90% !important"
+      >
+        >
+        <div class="modal-content px-5">
+          <!-- <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div> -->
+          <div class="modal-body"></div>
+          <FullCalendar v-if="show" :options="calendarOptions" />
+          <div class="modal-footer">
+            <button
+              id="closeModal"
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="mx-auto" style="max-width: 90% !important">
     <button type="button" @click="_add" class="btn btn-success d-flex">
       Crear
@@ -89,20 +140,34 @@ export default {
   components: { FullCalendar },
   data() {
     return {
+      show: false,
       calendarOptions: {
+        buttonText: {
+          //Here I make the button show French date instead of a text.
+          locale: "es",
+        },
+        locale: "es",
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: "dayGridMonth",
         dateClick: this.handleDateClick,
         events: [
-          { title: "event 1", date: "2019-04-01" },
-          { title: "event 2", date: "2019-04-02" },
+          { title: "event 1", date: "2022-05-01" },
+          { title: "event 2", date: "2022-05-02" },
         ],
+        height: "100%",
+        width: "100%",
       },
     };
   },
   methods: {
+    showCalendar() {
+      setTimeout(() => {
+        this.show = true;
+      }, 500);
+    },
     handleDateClick: function (arg) {
       alert("date click! " + arg.dateStr);
+      document.getElementById("closeModal").click();
     },
     _add() {
       Swal.fire({
