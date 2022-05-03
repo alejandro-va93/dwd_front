@@ -2,6 +2,7 @@
 // See README's bottom section for more info.
 
 <template>
+  <FullCalendar :options="calendarOptions" />
   <div class="mx-auto" style="max-width: 90% !important">
     <button type="button" @click="_add" class="btn btn-success d-flex">
       Crear
@@ -78,19 +79,36 @@
 
 <script>
 import Swal from "sweetalert2";
+import "@fullcalendar/core/vdom"; // solves problem with Vite
+import FullCalendar from "@fullcalendar/vue3";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
 export default {
   name: "App",
-  components: {},
+  components: { FullCalendar },
+  data() {
+    return {
+      calendarOptions: {
+        plugins: [dayGridPlugin, interactionPlugin],
+        initialView: "dayGridMonth",
+        dateClick: this.handleDateClick,
+        events: [
+          { title: "event 1", date: "2019-04-01" },
+          { title: "event 2", date: "2019-04-02" },
+        ],
+      },
+    };
+  },
   methods: {
-    greet() {
-      console.log("greetings");
+    handleDateClick: function (arg) {
+      alert("date click! " + arg.dateStr);
     },
     _add() {
       Swal.fire({
         title: "Multiple inputs",
         html:
-          '<input @click="greet" placeholder="asd" id="swal-input1" class="swal2-input">' +
+          '<input placeholder="asd" id="swal-input1" class="swal2-input">' +
           '<input id="swal-input2" class="swal2-input">' +
           '<input id="swal-input3" class="swal2-input">' +
           '<input id="swal-input4" class="swal2-input">' +
