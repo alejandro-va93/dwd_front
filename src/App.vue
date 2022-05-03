@@ -4,15 +4,6 @@
 <template>
   <div class="section">
     <!-- Button trigger modal -->
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#exampleModal"
-      @click="showCalendar"
-    >
-      Launch demo modal
-    </button>
 
     <!-- Modal -->
     <div
@@ -102,14 +93,20 @@
             <th scope="row"></th>
             <td scope="col"><input class="w60 text-center" /></td>
             <td scope="col"><input class="w60 text-center" /></td>
-            <td scope="col">
-              <button type="button" @click="_add" class="btn btn-success">
+            <td scope="col" class="">
+              <button
+                type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#exampleModal"
+                @click="showCalendar"
+              >
                 +
               </button>
               <input class="w60 text-center" readonly />
             </td>
             <td scope="col">
-              <button type="button" @click="_add" class="btn btn-success">
+              <button type="button" class="btn btn-primary" @click="getHour">
                 +
               </button>
               <input class="w60 text-center" readonly />
@@ -141,19 +138,28 @@ export default {
   data() {
     return {
       show: false,
+      date: String,
+      hour: String,
+      availableHrs: [
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+      ],
       calendarOptions: {
-        buttonText: {
-          //Here I make the button show French date instead of a text.
-          locale: "es",
-        },
         locale: "es",
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: "dayGridMonth",
         dateClick: this.handleDateClick,
-        events: [
-          { title: "event 1", date: "2022-05-01" },
-          { title: "event 2", date: "2022-05-02" },
-        ],
+        // events: [
+        //   { title: "event 1", date: "2022-05-01" },
+        //   { title: "event 2", date: "2022-05-02" },
+        // ],
         height: "100%",
         width: "100%",
       },
@@ -165,9 +171,24 @@ export default {
         this.show = true;
       }, 500);
     },
+    getHour() {
+      Swal.fire({
+        title: "Elige una hora",
+        input: "radio",
+        inputOptions: this.availableHrs,
+        inputValidator: (value) => {
+          if (!value) {
+            return "You need to choose something!";
+          }
+          console.log(this.availableHrs[value]);
+        },
+      });
+    },
     handleDateClick: function (arg) {
-      alert("date click! " + arg.dateStr);
+      this.date = arg.dateStr; // no borrar
+      console.log("this.date", this.date);
       document.getElementById("closeModal").click();
+      this.getHour();
     },
     _add() {
       Swal.fire({
@@ -207,6 +228,12 @@ export default {
 <style>
 .w60 {
   max-width: 60% !important;
+}
+.swal2-radio {
+  display: grid !important;
+}
+label {
+  margin-bottom: 10px !important;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
