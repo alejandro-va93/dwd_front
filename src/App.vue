@@ -29,7 +29,7 @@
             ></button>
           </div> -->
           <div class="modal-body"></div>
-          <FullCalendar v-if="show" :options="calendarOptions" />
+          <FullCalendar id="calendar" v-if="show" :options="calendarOptions" />
           <div class="modal-footer">
             <button
               id="closeModal"
@@ -46,8 +46,8 @@
   </div>
 
   <div class="mx-auto" style="max-width: 90% !important">
-    <button type="button" @click="_add" class="btn btn-success d-flex">
-      Crear
+    <button type="button" @click="scrollAdd" class="btn btn-success d-flex">
+      Nuevo registro
     </button>
     <div class="table-responsive">
       <table class="table">
@@ -114,7 +114,12 @@
             <td scope="col"><input class="w60 text-center" /></td>
             <td scope="col"><input class="w60 text-center" /></td>
             <td scope="col">
-              <button type="button" @click="_add" class="btn btn-success">
+              <button
+                id="addBtn"
+                type="button"
+                @click="_add"
+                class="btn btn-success"
+              >
                 Agregar
               </button>
             </td>
@@ -138,8 +143,8 @@ export default {
   data() {
     return {
       show: false,
-      date: String,
-      hour: String,
+      selectedDate: null,
+      selectedHour: null,
       availableHrs: [
         "09:00",
         "10:00",
@@ -185,40 +190,54 @@ export default {
       });
     },
     handleDateClick: function (arg) {
-      this.date = arg.dateStr; // no borrar
-      console.log("this.date", this.date);
+      this.selectedDate = arg.dateStr; // no borrar
+      console.log("this.selectedDate", this.selectedDate);
       document.getElementById("closeModal").click();
       this.getHour();
     },
+    scrollAdd() {
+      document.getElementById("addBtn").scrollIntoView();
+    },
     _add() {
+      if (!this.selectedDate)
+        return Swal.fire({
+          icon: "error",
+          title: "Por favor completa todos los campos.",
+        });
       Swal.fire({
-        title: "Multiple inputs",
-        html:
-          '<input placeholder="asd" id="swal-input1" class="swal2-input">' +
-          '<input id="swal-input2" class="swal2-input">' +
-          '<input id="swal-input3" class="swal2-input">' +
-          '<input id="swal-input4" class="swal2-input">' +
-          '<input id="swal-input5" class="swal2-input">' +
-          '<input id="swal-input6" class="swal2-input">',
-        focusConfirm: false,
-        preConfirm: () => {
-          return [
-            document.getElementById("swal-input1").value,
-            document.getElementById("swal-input2").value,
-            document.getElementById("swal-input3").value,
-            document.getElementById("swal-input4").value,
-            document.getElementById("swal-input5").value,
-            document.getElementById("swal-input6").value,
-          ];
-        },
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire(
+            "Registro agregado",
+            "Your file has been deleted.",
+            "success"
+          );
+        }
       });
     },
     _delete() {
       Swal.fire({
-        title: "Error!",
-        text: "Do you want to continue",
-        icon: "error",
-        confirmButtonText: "Cool",
+        // didOpen: () => {
+        //   Swal.showLoading();
+        // },
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire("Deleted!", "Your file has been deleted.", "success");
+        }
       });
     },
   },
@@ -226,6 +245,9 @@ export default {
 </script>
 
 <style>
+#calendar {
+  cursor: pointer !important;
+}
 .w60 {
   max-width: 60% !important;
 }
@@ -233,6 +255,7 @@ export default {
   display: grid !important;
 }
 label {
+  cursor: pointer !important;
   margin-bottom: 10px !important;
 }
 #app {
