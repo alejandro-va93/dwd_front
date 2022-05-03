@@ -1,3 +1,6 @@
+// @author Alejandro Valdes
+// See README's bottom section for more info.
+
 <template>
   <div class="mx-auto" style="max-width: 90% !important">
     <button type="button" @click="_add" class="btn btn-success d-flex">
@@ -45,12 +48,20 @@
           <!-- end repeat -->
           <tr>
             <th scope="row"></th>
+            <td scope="col"><input class="w60 text-center" /></td>
+            <td scope="col"><input class="w60 text-center" /></td>
             <td scope="col">
-              <input class="w60 text-center" />
+              <button type="button" @click="_add" class="btn btn-success">
+                +
+              </button>
+              <input class="w60 text-center" readonly />
             </td>
-            <td scope="col"><input class="w60 text-center" /></td>
-            <td scope="col"><input class="w60 text-center" /></td>
-            <td scope="col"><input class="w60 text-center" /></td>
+            <td scope="col">
+              <button type="button" @click="_add" class="btn btn-success">
+                +
+              </button>
+              <input class="w60 text-center" readonly />
+            </td>
             <td scope="col"><input class="w60 text-center" /></td>
             <td scope="col"><input class="w60 text-center" /></td>
             <td scope="col">
