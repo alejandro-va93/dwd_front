@@ -91,9 +91,12 @@
           <!-- end repeat -->
           <tr>
             <th scope="row"></th>
-            <td scope="col"><input class="w60 text-center" /></td>
+            <td scope="col">
+              <input v-model="name" class="w60 text-center" />
+            </td>
             <td scope="col"><input class="w60 text-center" /></td>
             <td scope="col" class="">
+              <!-- add date -->
               <button
                 type="button"
                 class="btn btn-primary"
@@ -103,13 +106,22 @@
               >
                 +
               </button>
-              <input class="w60 text-center" readonly />
+              <input
+                :placeholder="selectedDate"
+                class="w60 text-center"
+                readonly
+              />
             </td>
             <td scope="col">
+              <!-- add hour -->
               <button type="button" class="btn btn-primary" @click="getHour">
                 +
               </button>
-              <input class="w60 text-center" readonly />
+              <input
+                :placeholder="selectedHour"
+                class="w60 text-center"
+                readonly
+              />
             </td>
             <td scope="col"><input class="w60 text-center" /></td>
             <td scope="col"><input class="w60 text-center" /></td>
@@ -145,6 +157,18 @@ export default {
       show: false,
       selectedDate: null,
       selectedHour: null,
+      name: null,
+      lastName: null,
+      phoneNumber: null,
+      email: null,
+      reqBody: {
+        date: this.selectedDate,
+        start_time: this.selectedHour,
+        first_name: this.firstName,
+        last_name: this.lastName,
+        phone_number: this.phoneNumber,
+        email: this.email,
+      },
       availableHrs: [
         "09:00",
         "10:00",
@@ -182,10 +206,10 @@ export default {
         input: "radio",
         inputOptions: this.availableHrs,
         inputValidator: (value) => {
-          if (!value) {
+          if (!value && !this.selectedHour) {
             return "You need to choose something!";
           }
-          console.log(this.availableHrs[value]);
+          this.selectedHour = this.availableHrs[value];
         },
       });
     },
@@ -204,14 +228,15 @@ export default {
           icon: "error",
           title: "Por favor completa todos los campos.",
         });
+      console.log(this.name);
       Swal.fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
+        title: "¿Agregar nuevo registro?",
+        // text: "You won't be able to revert this!",
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!",
+        confirmButtonText: "Sí",
       }).then((result) => {
         if (result.isConfirmed) {
           Swal.fire(
