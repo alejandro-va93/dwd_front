@@ -1,11 +1,9 @@
 // @author Alejandro Valdes
 // See README's bottom section for more info.
 
-<template v-if="agenda">
+<template v-if="agenda.length">
   <div class="section">
-    <!-- Button trigger modal -->
-
-    <!-- Modal -->
+    <!-- calendar Modal -->
     <div
       class="modal fade p-5"
       id="exampleModal"
@@ -19,17 +17,130 @@
       >
         >
         <div class="modal-content px-5">
-          <!-- <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div> -->
           <div class="modal-body"></div>
           <FullCalendar id="calendar" v-if="show" :options="calendarOptions" />
+          <div class="modal-footer">
+            <button
+              id="closeModal"
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- editing modal -->
+    <div
+      class="modal fade p-5"
+      id="editingModal"
+      tabindex="-1"
+      aria-labelledby="editingModalLabel"
+      aria-hidden="true"
+    >
+      <div
+        class="p-5 m-auto modal-dialog modal-fullscreen modal-dialog-centered"
+        style="max-width: 95% !important; max-height: 90% !important"
+      >
+        >
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Start Time</th>
+                    <th scope="col">Phone Number</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row"></th>
+                    <td scope="col">
+                      <input
+                        :value="temp.contact_info.first_name"
+                        class="w60 text-center"
+                      />
+                    </td>
+                    <td scope="col">
+                      <input
+                        :value="temp.contact_info.last_name"
+                        class="w60 text-center"
+                      />
+                    </td>
+                    <td scope="col" class="">
+                      <!-- add date -->
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#exampleModal"
+                        @click="showCalendar"
+                      >
+                        +
+                      </button>
+                      <input
+                        :value="temp.date"
+                        class="w60 text-center"
+                        readonly
+                      />
+                    </td>
+                    <td scope="col">
+                      <!-- add hour -->
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        @click="getHour"
+                      >
+                        +
+                      </button>
+                      <input
+                        :value="temp.start_time"
+                        class="w60 text-center"
+                        readonly
+                      />
+                    </td>
+                    <td scope="col">
+                      <input
+                        :value="temp.contact_info.phone_number"
+                        class="w60 text-center"
+                      />
+                    </td>
+                    <td scope="col">
+                      <input
+                        :value="temp.contact_info.email"
+                        class="w60 text-center"
+                      />
+                    </td>
+                    <td scope="col">
+                      <button
+                        id="addBtn"
+                        type="button"
+                        @click="confirmEdit"
+                        class="btn btn-success"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <FullCalendar
+              id="calendar"
+              v-if="show"
+              :options="calendarOptions"
+            />
+          </div>
           <div class="modal-footer">
             <button
               id="closeModal"
@@ -49,6 +160,7 @@
     <button type="button" @click="scrollAdd" class="btn btn-success d-flex">
       New Entry
     </button>
+
     <div class="table-responsive">
       <table class="table">
         <thead>
@@ -66,7 +178,7 @@
         <tbody>
           <!-- repeat -->
           <tr v-for="(item, index) in agenda" :key="index">
-            <th scope="row">{{ index + 1 }}</th>
+            <th scope="row">1</th>
             <td scope="col">{{ item.contact_info.first_name }}</td>
             <td scope="col">{{ item.contact_info.last_name }}</td>
             <td scope="col">{{ item.date }}</td>
@@ -75,9 +187,17 @@
             <td scope="col">{{ item.contact_info.email }}</td>
             <td scope="col">
               <div class="d-flex">
-                <button type="button" class="btn btn-primary mx-1">Edit</button>
                 <button
-                  @click="confirmDel"
+                  @click="startEdit(item)"
+                  type="button"
+                  class="btn btn-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editingModal"
+                >
+                  Edit
+                </button>
+                <button
+                  @click="confirmDel(item.id)"
                   type="button"
                   class="btn btn-danger mx-1"
                 >
@@ -159,7 +279,18 @@ export default {
   components: { FullCalendar },
   data() {
     return {
-      agenda: null,
+      agenda: [],
+      temp: {
+        id: null,
+        date: null,
+        start_time: null,
+        contact_info: {
+          first_name: null,
+          last_name: null,
+          phone_number: null,
+          email: null,
+        },
+      },
       show: false,
       form: {
         date: null,
@@ -201,11 +332,9 @@ export default {
     async _create() {
       try {
         const res = await x.create(this.form);
-        console.log("_create() res", res);
         this._getAll();
         return res;
       } catch (error) {
-        console.log(error);
         return null;
       }
     },
@@ -246,6 +375,7 @@ export default {
     },
     //CRUD END
     showCalendar() {
+      if (this.show) this.show = !this.show;
       setTimeout(() => {
         this.show = true;
       }, 500);
@@ -271,6 +401,33 @@ export default {
     scrollAdd() {
       document.getElementById("addBtn").scrollIntoView();
     },
+    startEdit(item) {
+      this.temp = item;
+      console.log(this.temp);
+      this.showCalendar();
+    },
+    confirmEdit(id) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            didOpen: async () => {
+              Swal.showLoading();
+              const op = await this._update(id);
+              if (!op) return Swal.fire("Operation failed.", "", "error");
+              Swal.fire("Successfully edited.", "", "success");
+            },
+          });
+        }
+      });
+    },
     confirmCreate() {
       for (var key in this.form) {
         if (this.form[key] == null || this.form[key] == "")
@@ -292,7 +449,6 @@ export default {
             didOpen: async () => {
               Swal.showLoading();
               const op = await this._create(this.form);
-              console.log(op);
               if (!op) return Swal.fire("Operation failed.", "", "error");
               Swal.fire("Successfully added.", "", "success");
             },
@@ -300,11 +456,8 @@ export default {
         }
       });
     },
-    confirmDel() {
+    confirmDel(id) {
       Swal.fire({
-        // didOpen: () => {
-        //   Swal.showLoading();
-        // },
         title: "Are you sure?",
         text: "You won't be able to revert this",
         icon: "warning",
@@ -317,7 +470,7 @@ export default {
           Swal.fire({
             didOpen: async () => {
               Swal.showLoading();
-              const op = await this._destroy(7);
+              const op = await this._destroy(id);
               if (!op) return Swal.fire("Operation failed.", "", "error");
               Swal.fire("Successfully deleted.", "", "success");
             },
