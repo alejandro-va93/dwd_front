@@ -92,9 +92,11 @@
           <tr>
             <th scope="row"></th>
             <td scope="col">
-              <input v-model="name" class="w60 text-center" />
+              <input v-model="form.first_name" class="w60 text-center" />
             </td>
-            <td scope="col"><input class="w60 text-center" /></td>
+            <td scope="col">
+              <input v-model="form.last_name" class="w60 text-center" />
+            </td>
             <td scope="col" class="">
               <!-- add date -->
               <button
@@ -107,7 +109,7 @@
                 +
               </button>
               <input
-                :placeholder="selectedDate"
+                :placeholder="this.form.date"
                 class="w60 text-center"
                 readonly
               />
@@ -118,13 +120,17 @@
                 +
               </button>
               <input
-                :placeholder="selectedHour"
+                :placeholder="this.form.start_time"
                 class="w60 text-center"
                 readonly
               />
             </td>
-            <td scope="col"><input class="w60 text-center" /></td>
-            <td scope="col"><input class="w60 text-center" /></td>
+            <td scope="col">
+              <input v-model="form.phone_number" class="w60 text-center" />
+            </td>
+            <td scope="col">
+              <input v-model="form.email" class="w60 text-center" />
+            </td>
             <td scope="col">
               <button
                 id="addBtn"
@@ -155,19 +161,13 @@ export default {
   data() {
     return {
       show: false,
-      selectedDate: null,
-      selectedHour: null,
-      name: null,
-      lastName: null,
-      phoneNumber: null,
-      email: null,
-      reqBody: {
-        date: this.selectedDate,
-        start_time: this.selectedHour,
-        first_name: this.firstName,
-        last_name: this.lastName,
-        phone_number: this.phoneNumber,
-        email: this.email,
+      form: {
+        date: null,
+        start_time: null,
+        first_name: null,
+        last_name: null,
+        phone_number: null,
+        email: null,
       },
       availableHrs: [
         "09:00",
@@ -206,16 +206,16 @@ export default {
         input: "radio",
         inputOptions: this.availableHrs,
         inputValidator: (value) => {
-          if (!value && !this.selectedHour) {
+          if (!value && !this.form.start_time) {
             return "You need to choose something!";
           }
-          this.selectedHour = this.availableHrs[value];
+          this.form.start_time = this.availableHrs[value];
         },
       });
     },
     handleDateClick: function (arg) {
-      this.selectedDate = arg.dateStr; // no borrar
-      console.log("this.selectedDate", this.selectedDate);
+      this.form.date = arg.dateStr; // no borrar
+      console.log("this.selectedDate", this.form.date);
       document.getElementById("closeModal").click();
       this.getHour();
     },
@@ -223,12 +223,13 @@ export default {
       document.getElementById("addBtn").scrollIntoView();
     },
     _add() {
-      if (!this.selectedDate)
-        return Swal.fire({
-          icon: "error",
-          title: "Por favor completa todos los campos.",
-        });
-      console.log(this.name);
+      for (var key in this.form) {
+        if (this.form[key] == null || this.form[key] == "")
+          return Swal.fire({
+            icon: "error",
+            title: "Por favor completa todos los campos.",
+          });
+      }
       Swal.fire({
         title: "¿Agregar nuevo registro?",
         // text: "You won't be able to revert this!",
