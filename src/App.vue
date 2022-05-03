@@ -1,7 +1,7 @@
 // @author Alejandro Valdes
 // See README's bottom section for more info.
 
-<template>
+<template v-if="agenda">
   <div class="section">
     <!-- Button trigger modal -->
 
@@ -47,43 +47,41 @@
 
   <div class="mx-auto" style="max-width: 90% !important">
     <button type="button" @click="scrollAdd" class="btn btn-success d-flex">
-      Nuevo registro
+      New Entry
     </button>
     <div class="table-responsive">
       <table class="table">
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Apellido</th>
-            <th scope="col">Fecha</th>
-            <th scope="col">Hora</th>
-            <th scope="col">Teléfono</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Date</th>
+            <th scope="col">Start Time</th>
+            <th scope="col">Phone Number</th>
             <th scope="col">Email</th>
-            <th scope="col">Acción</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
           <!-- repeat -->
-          <tr>
-            <th scope="row">1</th>
-            <td scope="col">Nombre</td>
-            <td scope="col">Apellido</td>
-            <td scope="col">Fecha</td>
-            <td scope="col">Hora</td>
-            <td scope="col">Teléfono</td>
-            <td scope="col">Email</td>
+          <tr v-for="(item, index) in agenda" :key="index">
+            <th scope="row">{{ index + 1 }}</th>
+            <td scope="col">{{ item.contact_info.first_name }}</td>
+            <td scope="col">{{ item.contact_info.last_name }}</td>
+            <td scope="col">{{ item.date }}</td>
+            <td scope="col">{{ item.start_time }}</td>
+            <td scope="col">{{ item.contact_info.phone_number }}</td>
+            <td scope="col">{{ item.contact_info.email }}</td>
             <td scope="col">
               <div class="d-flex">
-                <button type="button" class="btn btn-primary mx-1">
-                  Editar
-                </button>
+                <button type="button" class="btn btn-primary mx-1">Edit</button>
                 <button
-                  @click="_delete"
+                  @click="confirmDel"
                   type="button"
                   class="btn btn-danger mx-1"
                 >
-                  Eliminar
+                  Delete
                 </button>
               </div>
             </td>
@@ -135,10 +133,10 @@
               <button
                 id="addBtn"
                 type="button"
-                @click="_add"
+                @click="confirmCreate"
                 class="btn btn-success"
               >
-                Agregar
+                Create
               </button>
             </td>
           </tr>
@@ -154,12 +152,14 @@ import "@fullcalendar/core/vdom"; // solves problem with Vite
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import * as x from "./service";
 
 export default {
   name: "App",
   components: { FullCalendar },
   data() {
     return {
+      agenda: null,
       show: false,
       form: {
         date: null,
@@ -181,7 +181,6 @@ export default {
         "17:00",
       ],
       calendarOptions: {
-        locale: "es",
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: "dayGridMonth",
         dateClick: this.handleDateClick,
@@ -194,7 +193,58 @@ export default {
       },
     };
   },
+  beforeMount() {
+    this._getAll();
+  },
   methods: {
+    //CRUD START
+    async _create() {
+      try {
+        const res = await x.create(this.form);
+        console.log("_create() res", res);
+        this._getAll();
+        return res;
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
+    },
+    async _get(num) {
+      try {
+        const res = await x.get(num);
+        return res.data;
+      } catch (error) {
+        return null;
+      }
+    },
+    async _getAll() {
+      try {
+        const res = await x.getAll();
+        if (!res) throw "error";
+        this.agenda = res.data;
+      } catch (error) {
+        return null;
+      }
+    },
+    async _update(id) {
+      try {
+        const res = await x.update(id);
+        this._getAll();
+        return res;
+      } catch (error) {
+        return null;
+      }
+    },
+    async _destroy(id) {
+      try {
+        const res = await x.destroy(id);
+        this._getAll();
+        return res;
+      } catch (error) {
+        return null;
+      }
+    },
+    //CRUD END
     showCalendar() {
       setTimeout(() => {
         this.show = true;
@@ -202,67 +252,76 @@ export default {
     },
     getHour() {
       Swal.fire({
-        title: "Elige una hora",
+        title: "Choose an hour",
         input: "radio",
         inputOptions: this.availableHrs,
         inputValidator: (value) => {
           if (!value && !this.form.start_time) {
-            return "You need to choose something!";
+            return "Please choose an hour";
           }
           this.form.start_time = this.availableHrs[value];
         },
       });
     },
     handleDateClick: function (arg) {
-      this.form.date = arg.dateStr; // no borrar
-      console.log("this.selectedDate", this.form.date);
+      this.form.date = arg.dateStr;
       document.getElementById("closeModal").click();
-      this.getHour();
+      !this.form.start_time && this.getHour();
     },
     scrollAdd() {
       document.getElementById("addBtn").scrollIntoView();
     },
-    _add() {
+    confirmCreate() {
       for (var key in this.form) {
         if (this.form[key] == null || this.form[key] == "")
           return Swal.fire({
             icon: "error",
-            title: "Por favor completa todos los campos.",
+            title: "Please fill in all fields.",
           });
       }
       Swal.fire({
-        title: "¿Agregar nuevo registro?",
-        // text: "You won't be able to revert this!",
+        title: "Add new entry?",
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Sí",
+        confirmButtonText: "Yes",
       }).then((result) => {
         if (result.isConfirmed) {
-          Swal.fire(
-            "Registro agregado",
-            "Your file has been deleted.",
-            "success"
-          );
+          Swal.fire({
+            didOpen: async () => {
+              Swal.showLoading();
+              const op = await this._create(this.form);
+              console.log(op);
+              if (!op) return Swal.fire("Operation failed.", "", "error");
+              Swal.fire("Successfully added.", "", "success");
+            },
+          });
         }
       });
     },
-    _delete() {
+    confirmDel() {
       Swal.fire({
         // didOpen: () => {
         //   Swal.showLoading();
         // },
         title: "Are you sure?",
-        text: "You won't be able to revert this!",
+        text: "You won't be able to revert this",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!",
+        confirmButtonText: "Yes",
       }).then((result) => {
         if (result.isConfirmed) {
-          Swal.fire("Deleted!", "Your file has been deleted.", "success");
+          Swal.fire({
+            didOpen: async () => {
+              Swal.showLoading();
+              const op = await this._destroy(7);
+              if (!op) return Swal.fire("Operation failed.", "", "error");
+              Swal.fire("Successfully deleted.", "", "success");
+            },
+          });
         }
       });
     },

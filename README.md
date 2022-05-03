@@ -39,9 +39,9 @@ password: rootroot
 
 ### Remote api endpoint
 
-baseUrl: http://dwdback-env.eba-kuyrpw3s.us-east-1.elasticbeanstalk.com/api
+baseUrl: http://dwdback-env.eba-kuyrpw3s.us-east-1.elasticbeanstalk.com/api/appointments
 
-get example: {{baseUrl}}/appointments
+get by id example: baseUrl/id
 
 ### Req body example
 
