@@ -6,7 +6,7 @@ const baseUrl =
 export const create = async (body) => {
   var res = await axios.post(baseUrl, body);
   console.log("service", res);
-  return res.data.status == "ok" ? res.data : res.data?.message;
+  return res.data;
 };
 
 export const getAll = async () => {

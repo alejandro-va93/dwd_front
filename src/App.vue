@@ -73,7 +73,7 @@
                   <td scope="col">
                     <!-- add date -->
                     <input
-                      v-model="temp.date"
+                      :placeholder="temp.date"
                       class="w60 text-center"
                       readonly
                     />
@@ -84,12 +84,12 @@
                       :disabled="!temp.date"
                       type="button"
                       class="btn btn-primary py-0"
-                      @click="setHr(temp.date)"
+                      @click="setHr(temp.date, 'edit')"
                     >
                       +
                     </button>
                     <input
-                      v-model="temp.start_time"
+                      :placeholder="temp.start_time"
                       class="text-center"
                       style="width: 40% !important"
                       readonly
@@ -217,7 +217,7 @@
                   :disabled="!form.date"
                   type="button"
                   class="btn btn-primary py-0"
-                  @click="setHr(form.date)"
+                  @click="setHr(form.date, 'create')"
                 >
                   +
                 </button>
@@ -371,7 +371,7 @@ export default {
         this.show = true;
       }, 500);
     },
-    setHr(date) {
+    setHr(date, type) {
       Swal.fire({
         didOpen: async () => {
           Swal.showLoading();
@@ -395,14 +395,20 @@ export default {
             });
           }
           Swal.fire({
-            title: "Choose an hour",
+            title: this.availableHrs.length
+              ? "Choose an hour"
+              : "No available hours",
             input: "radio",
             inputOptions: this.availableHrs,
             inputValidator: (value) => {
-              if (!value && !this.form.start_time) {
+              if (!value && this.availableHrs.length) {
                 return "Please choose an hour";
               }
-              this.form.start_time = this.availableHrs[value];
+              if (type == "create") {
+                this.form.start_time = this.availableHrs[value];
+              } else {
+                this.temp.start_time = this.availableHrs[value];
+              }
             },
           });
         },
@@ -456,7 +462,12 @@ export default {
             didOpen: async () => {
               Swal.showLoading();
               const op = await this._update(this.temp.id);
-              if (!op) return Swal.fire("Operation failed.", "", "error");
+              if (!op || op?.status == "nok")
+                return Swal.fire(
+                  "Operation failed.",
+                  op?.message ?? "",
+                  "error"
+                );
               Swal.fire("Successfully edited.", "", "success");
             },
           });
@@ -484,7 +495,12 @@ export default {
             didOpen: async () => {
               Swal.showLoading();
               const op = await this._create(this.form);
-              if (!op) return Swal.fire("Operation failed.", "", "error");
+              if (!op || op?.status == "nok")
+                return Swal.fire(
+                  "Operation failed.",
+                  op?.message ?? "",
+                  "error"
+                );
               Swal.fire("Successfully added.", "", "success");
             },
           });
@@ -506,7 +522,12 @@ export default {
             didOpen: async () => {
               Swal.showLoading();
               const op = await this._destroy(id);
-              if (!op) return Swal.fire("Operation failed.", "", "error");
+              if (!op || op?.status == "nok")
+                return Swal.fire(
+                  "Operation failed.",
+                  op?.message ?? "",
+                  "error"
+                );
               Swal.fire("Successfully deleted.", "", "success");
             },
           });
