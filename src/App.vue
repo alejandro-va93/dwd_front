@@ -81,9 +81,10 @@
                   <td scope="col">
                     <!-- add hour -->
                     <button
+                      :disabled="!temp.date"
                       type="button"
                       class="btn btn-primary"
-                      @click="getHour"
+                      @click="setHr(temp.date)"
                     >
                       +
                     </button>
@@ -210,7 +211,12 @@
             </td>
             <td scope="col">
               <!-- add hour -->
-              <button type="button" class="btn btn-primary" @click="getHour">
+              <button
+                :disabled="!form.date"
+                type="button"
+                class="btn btn-primary"
+                @click="setHr(form.date)"
+              >
                 +
               </button>
               <input
@@ -362,24 +368,50 @@ export default {
         this.show = true;
       }, 500);
     },
-    getHour() {
+    setHr(date) {
       Swal.fire({
-        title: "Choose an hour",
-        input: "radio",
-        inputOptions: this.availableHrs,
-        inputValidator: (value) => {
-          if (!value && !this.form.start_time) {
-            return "Please choose an hour";
+        didOpen: async () => {
+          Swal.showLoading();
+          this.availableHrs = [
+            "09:00",
+            "10:00",
+            "11:00",
+            "12:00",
+            "13:00",
+            "14:00",
+            "15:00",
+            "16:00",
+            "17:00",
+          ];
+          const resp = await this._get(date);
+          if (resp) {
+            resp.map((item) => {
+              this.availableHrs.map((hr, index) => {
+                if (item.start_time == hr) this.availableHrs.splice(index, 1);
+              });
+            });
           }
-          this.form.start_time = this.availableHrs[value];
+          Swal.fire({
+            title: "Choose an hour",
+            input: "radio",
+            inputOptions: this.availableHrs,
+            inputValidator: (value) => {
+              if (!value && !this.form.start_time) {
+                return "Please choose an hour";
+              }
+              this.form.start_time = this.availableHrs[value];
+            },
+          });
         },
       });
     },
     handleDateClick: function (arg) {
+      this.form.start_time = null;
       this.form.date = arg.dateStr;
       document.getElementById("closeModal").click();
     },
     editDate: function (arg) {
+      this.temp.start_time = null;
       this.temp.date = arg.dateStr;
     },
     scrollAdd() {
