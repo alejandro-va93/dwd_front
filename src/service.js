@@ -29,12 +29,13 @@ export const get = async (num) => {
   }
 };
 
-export const update = async (id) => {
+export const update = async (id, body) => {
   try {
     const url = `${baseUrl}/${id}`;
-    const res = await axios.update(url);
+    const res = await axios.put(url, body);
     return res.data;
   } catch (error) {
+    console.log(error);
     return null;
   }
 };

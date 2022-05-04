@@ -26,7 +26,7 @@
               class="btn btn-secondary"
               data-bs-dismiss="modal"
             >
-              Cerrar
+              Close
             </button>
           </div>
         </div>
@@ -48,98 +48,74 @@
         >
         <div class="modal-content">
           <div class="modal-body">
-            <div class="">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Start Time</th>
-                    <th scope="col">Phone Number</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row"></th>
-                    <td scope="col">
-                      <input
-                        v-model="temp.contact_info.first_name"
-                        class="w60 text-center"
-                      />
-                    </td>
-                    <td scope="col">
-                      <input
-                        v-model="temp.contact_info.last_name"
-                        class="w60 text-center"
-                      />
-                    </td>
-                    <td scope="col" class="">
-                      <!-- add date -->
-                      <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#exampleModal"
-                        @click="showCalendar"
-                      >
-                        +
-                      </button>
-                      <input
-                        v-model="temp.date"
-                        class="w60 text-center"
-                        readonly
-                      />
-                    </td>
-                    <td scope="col">
-                      <!-- add hour -->
-                      <button
-                        type="button"
-                        class="btn btn-primary"
-                        @click="getHour"
-                      >
-                        +
-                      </button>
-                      <input
-                        v-model="temp.start_time"
-                        class="w60 text-center"
-                        readonly
-                      />
-                    </td>
-                    <td scope="col">
-                      <input
-                        v-model="temp.contact_info.phone_number"
-                        class="w60 text-center"
-                      />
-                    </td>
-                    <td scope="col">
-                      <input
-                        v-model="temp.contact_info.email"
-                        class="w60 text-center"
-                      />
-                    </td>
-                    <td scope="col">
-                      <button
-                        id="addBtn"
-                        type="button"
-                        @click="confirmEdit"
-                        class="btn btn-success"
-                      >
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <FullCalendar
-              id="calendar"
-              v-if="show"
-              :options="calendarOptions"
-            />
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">First Name</th>
+                  <th scope="col">Last Name</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Start Time</th>
+                  <th scope="col">Phone Number</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"></th>
+                  <td scope="col">
+                    <input v-model="temp.first_name" class="w60 text-center" />
+                  </td>
+                  <td scope="col">
+                    <input v-model="temp.last_name" class="w60 text-center" />
+                  </td>
+                  <td scope="col" class="">
+                    <!-- add date -->
+                    <input
+                      v-model="temp.date"
+                      class="w60 text-center"
+                      readonly
+                    />
+                  </td>
+                  <td scope="col">
+                    <!-- add hour -->
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      @click="getHour"
+                    >
+                      +
+                    </button>
+                    <input
+                      v-model="temp.start_time"
+                      class="w60 text-center"
+                      readonly
+                    />
+                  </td>
+                  <td scope="col">
+                    <input
+                      v-model="temp.phone_number"
+                      class="w60 text-center"
+                    />
+                  </td>
+                  <td scope="col">
+                    <input v-model="temp.email" class="w60 text-center" />
+                  </td>
+                  <td scope="col">
+                    <button
+                      id="addBtn"
+                      type="button"
+                      @click="confirmEdit"
+                      class="btn btn-success"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <FullCalendar id="calendar" v-if="show" :options="miniCalendar" />
           </div>
           <div class="modal-footer">
             <button
@@ -148,7 +124,7 @@
               class="btn btn-secondary"
               data-bs-dismiss="modal"
             >
-              Cerrar
+              Close
             </button>
           </div>
         </div>
@@ -178,7 +154,7 @@
         <tbody>
           <!-- repeat -->
           <tr v-for="(item, index) in agenda" :key="index">
-            <th scope="row">1</th>
+            <th scope="row">{{ index + 1 }}</th>
             <td scope="col">{{ item.contact_info.first_name }}</td>
             <td scope="col">{{ item.contact_info.last_name }}</td>
             <td scope="col">{{ item.date }}</td>
@@ -227,7 +203,7 @@
                 +
               </button>
               <input
-                :placeholder="this.form.date"
+                :placeholder="form.date"
                 class="w60 text-center"
                 readonly
               />
@@ -238,7 +214,7 @@
                 +
               </button>
               <input
-                :placeholder="this.form.start_time"
+                :placeholder="form.start_time"
                 class="w60 text-center"
                 readonly
               />
@@ -280,19 +256,17 @@ export default {
   data() {
     return {
       agenda: [],
-      temp: {
-        id: null,
-        date: null,
-        start_time: null,
-        contact_info: {
-          first_name: null,
-          last_name: null,
-          phone_number: null,
-          email: null,
-        },
-      },
       show: false,
       form: {
+        date: null,
+        start_time: null,
+        first_name: null,
+        last_name: null,
+        phone_number: null,
+        email: null,
+      },
+      temp: {
+        id: null,
         date: null,
         start_time: null,
         first_name: null,
@@ -321,6 +295,13 @@ export default {
         // ],
         height: "100%",
         width: "100%",
+      },
+      miniCalendar: {
+        plugins: [dayGridPlugin, interactionPlugin],
+        initialView: "dayGridMonth",
+        dateClick: this.editDate,
+        height: "90%",
+        width: "50%",
       },
     };
   },
@@ -357,10 +338,11 @@ export default {
     },
     async _update(id) {
       try {
-        const res = await x.update(id);
+        const res = await x.update(id, this.temp);
         this._getAll();
         return res;
       } catch (error) {
+        console.log(error);
         return null;
       }
     },
@@ -396,18 +378,27 @@ export default {
     handleDateClick: function (arg) {
       this.form.date = arg.dateStr;
       document.getElementById("closeModal").click();
-      !this.form.start_time && this.getHour();
+    },
+    editDate: function (arg) {
+      this.temp.date = arg.dateStr;
     },
     scrollAdd() {
       document.getElementById("addBtn").scrollIntoView();
     },
     startEdit(item) {
-      this.temp = item;
+      this.temp = {
+        id: item.id,
+        date: item.date,
+        start_time: item.start_time,
+        first_name: item.contact_info.first_name,
+        last_name: item.contact_info.last_name,
+        phone_number: item.contact_info.phone_number,
+        email: item.contact_info.email,
+      };
       this.showCalendar();
     },
     confirmEdit() {
       for (var key in this.temp) {
-        console.log(this.temp[key]);
         if (this.temp[key] == null || this.temp[key] == "")
           return Swal.fire({
             icon: "error",
