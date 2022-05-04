@@ -4,9 +4,12 @@ const baseUrl =
   "http://dwdback-env.eba-kuyrpw3s.us-east-1.elasticbeanstalk.com/api/appointments";
 
 export const create = async (body) => {
-  var res = await axios.post(baseUrl, body);
-  console.log("service", res);
-  return res.data;
+  try {
+    const res = await axios.post(baseUrl, body);
+    return res.data;
+  } catch (error) {
+    return null;
+  }
 };
 
 export const getAll = async () => {
@@ -35,7 +38,6 @@ export const update = async (id, body) => {
     const res = await axios.put(url, body);
     return res.data;
   } catch (error) {
-    console.log(error);
     return null;
   }
 };

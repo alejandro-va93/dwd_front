@@ -4,6 +4,7 @@
 <template v-if="agenda.length">
   <div class="section">
     <!-- calendar Modal -->
+    <text class="barcadeFont">💀 Dancing with Death 💀</text>
     <div
       class="modal fade p-5"
       id="exampleModal"
@@ -50,7 +51,7 @@
           <div class="modal-body">
             <table class="table">
               <thead>
-                <tr>
+                <tr class="table-dark">
                   <th scope="col">#</th>
                   <th scope="col">First Name</th>
                   <th scope="col">Last Name</th>
@@ -78,7 +79,7 @@
                       readonly
                     />
                   </td>
-                  <td scope="col" class="d-flex justify-content-center">
+                  <td scope="col">
                     <!-- add hour -->
                     <button
                       :disabled="!temp.date"
@@ -135,14 +136,18 @@
   </div>
 
   <div class="mx-auto" style="max-width: 90% !important">
-    <button type="button" @click="scrollAdd" class="btn btn-success d-flex">
+    <button
+      type="button"
+      @click="scrollAdd"
+      class="btn btn-success d-flex my-1"
+    >
       New Entry
     </button>
 
     <div class="table-responsive">
-      <table class="table">
+      <table class="table table-hover table-dark">
         <thead>
-          <tr>
+          <tr class="table-secondary">
             <th scope="col">#</th>
             <th scope="col">First Name</th>
             <th scope="col">Last Name</th>
@@ -193,7 +198,7 @@
             <td scope="col">
               <input v-model="form.last_name" class="w60 text-center" />
             </td>
-            <td scope="col" class="d-flex justify-content-center">
+            <td scope="col">
               <!-- add date -->
               <button
                 type="button"
@@ -212,7 +217,7 @@
             </td>
             <td scope="col">
               <!-- add hour -->
-              <div class="d-flex justify-content-center">
+              <div>
                 <button
                   :disabled="!form.date"
                   type="button"
@@ -539,6 +544,10 @@ export default {
 </script>
 
 <style>
+.barcadeFont {
+  font-family: "Barcade Brawl", sans-serif;
+}
+
 #calendar {
   cursor: pointer !important;
 }
