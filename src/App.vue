@@ -70,7 +70,7 @@
                   <td scope="col">
                     <input v-model="temp.last_name" class="w60 text-center" />
                   </td>
-                  <td scope="col" class="">
+                  <td scope="col">
                     <!-- add date -->
                     <input
                       v-model="temp.date"
@@ -78,19 +78,20 @@
                       readonly
                     />
                   </td>
-                  <td scope="col">
+                  <td scope="col" class="d-flex justify-content-center">
                     <!-- add hour -->
                     <button
                       :disabled="!temp.date"
                       type="button"
-                      class="btn btn-primary"
+                      class="btn btn-primary py-0"
                       @click="setHr(temp.date)"
                     >
                       +
                     </button>
                     <input
                       v-model="temp.start_time"
-                      class="w60 text-center"
+                      class="text-center"
+                      style="width: 40% !important"
                       readonly
                     />
                   </td>
@@ -192,11 +193,11 @@
             <td scope="col">
               <input v-model="form.last_name" class="w60 text-center" />
             </td>
-            <td scope="col" class="">
+            <td scope="col" class="d-flex justify-content-center">
               <!-- add date -->
               <button
                 type="button"
-                class="btn btn-primary"
+                class="btn btn-primary py-0"
                 data-bs-toggle="modal"
                 data-bs-target="#exampleModal"
                 @click="showCalendar"
@@ -211,19 +212,22 @@
             </td>
             <td scope="col">
               <!-- add hour -->
-              <button
-                :disabled="!form.date"
-                type="button"
-                class="btn btn-primary"
-                @click="setHr(form.date)"
-              >
-                +
-              </button>
-              <input
-                :placeholder="form.start_time"
-                class="w60 text-center"
-                readonly
-              />
+              <div class="d-flex justify-content-center">
+                <button
+                  :disabled="!form.date"
+                  type="button"
+                  class="btn btn-primary py-0"
+                  @click="setHr(form.date)"
+                >
+                  +
+                </button>
+                <input
+                  :placeholder="form.start_time"
+                  class="text-center"
+                  style="width: 40% !important"
+                  readonly
+                />
+              </div>
             </td>
             <td scope="col">
               <input v-model="form.phone_number" class="w60 text-center" />
@@ -348,7 +352,6 @@ export default {
         this._getAll();
         return res;
       } catch (error) {
-        console.log(error);
         return null;
       }
     },
@@ -415,7 +418,9 @@ export default {
       this.temp.date = arg.dateStr;
     },
     scrollAdd() {
-      document.getElementById("addBtn").scrollIntoView();
+      let elem = document.getElementById("addBtn");
+      elem.scrollIntoView();
+      elem.focus();
     },
     startEdit(item) {
       this.temp = {
